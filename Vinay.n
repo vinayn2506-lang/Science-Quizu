@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Learning Hub ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9; /* Lighter grey background */
+            color: #1e293b; /* Darker slate text */
+        }
+        .page { display: none; }
+        .active-page { display: block; }
+        .quiz-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border-color: #3b82f6; /* Blue-500 */
+        }
+        .correct-answer {
+            background-color: #22c55e !important; /* Green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* Green-600 */
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important; /* Red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* Red-600 */
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        /* Details/summary arrow */
+        summary::marker { color: #3b82f6; font-size: 1.2em; }
+        details[open] summary { color: #1d4ed8; }
+        /* Loading Spinner */
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #d1d5db;
+            border-bottom-color: #3b82f6;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Container for the entire application -->
+    <div id="app-container" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Login Page -->
+        <div id="login-page" class="page active-page">
+            <div class="text-center bg-white p-8 rounded-2xl shadow-xl">
+                <h1 class="text-4xl font-bold text-slate-900 mb-2">Welcome to the Science Learning Hub! ✨</h1>
+                <p class="text-slate-600 mb-8 text-lg">Please select your name to continue.</p>
+                <div id="student-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <!-- Student names will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <header class="bg-white p-6 rounded-2xl shadow-md mb-8 flex justify-between items-center">
+                <div>
+                    <h1 id="welcome-message" class="text-3xl font-bold text-slate-900"></h1>
+                    <p class="text-slate-500">Choose a chapter to start learning.</p>
+                </div>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Logout</button>
+            </header>
+            <div id="chapter-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Chapters will be dynamically inserted here -->
+            </div>
+        </div>
+        
+        <!-- Chapter Page -->
+        <div id="chapter-page" class="page">
+             <header class="bg-white p-6 rounded-2xl shadow-md mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <button onclick="showPage('home-page')" class="flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                            Back to Chapters
+                        </button>
+                        <h1 id="chapter-title" class="text-4xl font-bold text-slate-900 mt-2"></h1>
+                    </div>
+                </div>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer flex flex-col items-center text-center" onclick="showContent('qna')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <h2 class="text-2xl font-bold mb-4">Questions & Answers</h2>
+                    <p class="text-slate-600">Dive deep with 50 questions categorized by Bloom's Taxonomy.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer flex flex-col items-center text-center" onclick="showContent('quiz')">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                    <h2 class="text-2xl font-bold mb-4">Chapter Quiz</h2>
+                    <p class="text-slate-600">Test your knowledge with 50 multiple-choice questions.</p>
+                </div>
+                <div class="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow cursor-pointer flex flex-col items-center text-center md:col-span-2" onclick="showContent('ai_tutor')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.657 7.343A8 8 0 0117.657 18.657z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1014.12 11.88m-4.242 4.242L6.343 18.657m11.314-2.414a3 3 0 00-4.243-4.243m4.243 4.243l2.414 2.414M12 18.75V21m-2.25-7.5H9m3 7.5H3.375M9 11.25H3.375m3-3.75H3.375M14.25 11.25h2.625m3-3.75h2.625M14.25 3.75h2.625" /></svg>
+                    <h2 class="text-2xl font-bold mb-4">✨ Ask an AI Tutor</h2>
+                    <p>Confused about a topic? Get instant help from your personal AI tutor, Vidya.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q&A Page -->
+        <div id="qna-page" class="page">
+            <header class="bg-white p-6 rounded-2xl shadow-md mb-8 sticky top-4 z-10">
+                <div class="flex items-center justify-between">
+                    <div>
+                         <button onclick="showPage('chapter-page')" class="flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                            Back to Chapter
+                        </button>
+                        <h1 id="qna-title" class="text-4xl font-bold text-slate-900 mt-2"></h1>
+                    </div>
+                </div>
+            </header>
+            <div id="qna-content" class="space-y-4">
+                <!-- Q&A content will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz-page" class="page">
+             <header class="bg-white p-6 rounded-2xl shadow-md mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <button onclick="showPage('chapter-page');" class="flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                            Exit Quiz
+                        </button>
+                        <h1 id="quiz-title" class="text-4xl font-bold text-slate-900 mt-2"></h1>
+                    </div>
+                     <div class="text-right">
+                        <p class="text-slate-600">Question</p>
+                        <p id="quiz-progress" class="text-2xl font-bold"></p>
+                    </div>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2.5 mt-4">
+                    <div id="quiz-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </header>
+            
+            <div id="quiz-content" class="bg-white p-8 rounded-2xl shadow-lg"></div>
+
+             <div id="quiz-results" class="hidden text-center bg-white p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4">Quiz Complete!</h2>
+                <p class="text-xl mb-6">Your Score: <span id="quiz-score" class="font-bold text-blue-600"></span></p>
+                <div id="score-feedback" class="mb-6 text-lg"></div>
+                <div class="flex flex-col items-center gap-4">
+                    <button onclick="showPage('chapter-page')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full sm:w-auto">
+                        Back to Chapter
+                    </button>
+                    <button id="study-plan-btn" onclick="generateStudyPlan()" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-6 rounded-lg transition-colors w-full sm:w-auto">
+                       ✨ Generate Personalized Study Plan
+                    </button>
+                </div>
+                 <div id="study-plan-container" class="mt-6 text-left bg-slate-50 p-6 rounded-lg border border-slate-200 hidden"></div>
+            </div>
+        </div>
+        
+        <!-- AI Tutor Page -->
+        <div id="ai-tutor-page" class="page">
+             <header class="bg-white p-6 rounded-2xl shadow-md mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <button onclick="showPage('chapter-page')" class="flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                            Back to Chapter
+                        </button>
+                        <h1 id="ai-tutor-title" class="text-4xl font-bold text-slate-900 mt-2">✨ AI Tutor - Vidya</h1>
+                    </div>
+                </div>
+            </header>
+            <div class="bg-white p-6 rounded-2xl shadow-lg">
+                <div id="tutor-chat-box" class="h-96 overflow-y-auto mb-4 p-4 border rounded-lg bg-slate-50 space-y-4">
+                    <!-- Chat messages will appear here -->
+                </div>
+                <form id="tutor-form" class="flex gap-4">
+                    <input type="text" id="tutor-input" placeholder="Ask a question about this chapter..." class="flex-grow p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Send</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA STORE ---
+        // Contains all students, chapters, questions, and quiz data.
+        const students = ["Abhay", "Amruta", "Advaith", "Harika", "Harshitha", "Deepthi", "Nischith", "Tanvi", "Saanvi", "Thanushree KG", "Charvi"];
+        
+        const data = {
+            chapters: [
+                { id: 'ch1', title: "Is Matter Around Us Pure?", description: "Explore the nature of matter, from pure substances and mixtures to solutions and colloids." },
+                { id: 'ch2', title: "Force and Laws of Motion", description: "Understand the fundamental principles governing motion, inertia, momentum, and forces." },
+                { id: 'ch3', title: "Improvement in Food Resources", description: "Learn about agricultural practices, crop improvement, and animal husbandry for sustainable food production." }
+            ],
+            chapterSummaries: {
+                ch1: "This chapter covers the scientific classification of matter. It differentiates between pure substances (elements and compounds) and mixtures (homogeneous and heterogeneous). It details three types of mixtures: solutions (solute/solvent, concentration), suspensions, and colloids (dispersed phase/dispersing medium, Tyndall effect). It also covers separation techniques like evaporation, centrifugation, sublimation, and chromatography, and distinguishes between physical and chemical changes.",
+                ch2: "This chapter introduces Newton's three laws of motion. The First Law defines inertia and its relation to mass. The Second Law relates force, mass, and acceleration (F=ma) and defines momentum (p=mv). The Third Law states that for every action, there is an equal and opposite reaction. Concepts of balanced/unbalanced forces and the law of conservation of momentum are also explained.",
+                ch3: "This chapter discusses methods to improve food production from agriculture and animal husbandry. It covers crop variety improvement (hybridisation), crop production management (nutrients, manure vs. fertilizers, irrigation), and cropping patterns (mixed cropping, intercropping, crop rotation). It also details animal husbandry, including cattle farming (milch/draught animals), poultry farming (broilers/layers), fish production (capture/culture fisheries), and bee-keeping (apiculture)."
+            },
+            qna: {
+                ch1: [
+                    { level: "Remembering", q: "Define a pure substance.", a: "A pure substance consists of a single type of particle, meaning all constituent particles are the same in their chemical nature. Examples include elements like iron and compounds like water." },
+                    { level: "Remembering", q: "What is a mixture?", a: "A mixture is constituted by more than one kind of pure form of matter (substance). They can be separated into their components by physical methods. Examples include saltwater and air." },
+                    { level: "Remembering", q: "List the three main types of mixtures discussed in the chapter.", a: "The three main types of mixtures are Solutions, Suspensions, and Colloids." },
+                    { level: "Remembering", q: "What is the Tyndall effect?", a: "The Tyndall effect is the scattering of a beam of light by the particles of a colloid or a fine suspension, making the path of light visible." },
+                    { level: "Remembering", q: "Define solubility.", a: "Solubility is the maximum amount of a solute that can be dissolved in a given amount of solvent at a specific temperature to form a saturated solution." },
+                    { level: "Remembering", q: "What are the two components of a solution called?", a: "The two components of a solution are the solute (the substance that is dissolved) and the solvent (the substance in which the solute dissolves)." },
+                    { level: "Remembering", q: "Name the process used to separate components of a mixture with different boiling points.", a: "Distillation (or fractional distillation for liquids with close boiling points)." },
+                    { level: "Remembering", q: "What is an alloy?", a: "An alloy is a homogeneous mixture of two or more metals, or a metal and a non-metal, that cannot be separated into their components by physical methods. Example: Brass." },
+                    { level: "Understanding", q: "Explain the difference between a homogeneous and a heterogeneous mixture with examples.", a: "A homogeneous mixture has a uniform composition and its components are not visibly distinct (e.g., saltwater, air). A heterogeneous mixture has a non-uniform composition and its components are often visibly distinct (e.g., sand in water, oil and water)." },
+                    { level: "Understanding", q: "Why is a solution considered a homogeneous mixture?", a: "A solution is considered homogeneous because its solute particles are so small (less than 1 nm) that they are evenly distributed at the particle level, and they do not scatter light or settle down. The composition is uniform throughout." },
+                    { level: "Understanding", q: "How can you differentiate between a true solution and a colloidal solution?", a: "Although both may appear homogeneous, you can differentiate them using the Tyndall effect. A beam of light will be visible through a colloidal solution but not through a true solution. Also, particles in a colloid are larger than in a solution." },
+                    { level: "Understanding", q: "Explain why milk is considered a colloid.", a: "Milk is a colloid because it's a heterogeneous mixture where tiny globules of fat and protein (dispersed phase) are uniformly spread throughout water (dispersing medium). The particles are large enough to scatter light but small enough not to settle down." },
+                    { level: "Understanding", q: "Describe the difference between a physical change and a chemical change.", a: "A physical change alters the form or appearance of a substance but not its chemical composition (e.g., melting ice). A chemical change results in the formation of a new substance with different properties (e.g., rusting of iron)." },
+                    { level: "Understanding", q: "Why do particles in a suspension settle down when left undisturbed, while particles in a colloid do not?", a: "Suspension particles are large and heavy enough for gravity to overcome the random motion of the solvent particles, causing them to settle. Colloidal particles are smaller and lighter, and their constant random (Brownian) motion is sufficient to counteract gravity, keeping them suspended indefinitely." },
+                    { level: "Understanding", q: "What is meant by the 'concentration' of a solution?", a: "The concentration of a solution is a measure of the amount of solute that is dissolved in a given quantity of solvent or solution. It can be expressed in various ways, such as mass percentage, volume percentage, or molarity." },
+                    { level: "Understanding", q: "Differentiate between an element and a compound.", a: "An element is a basic form of matter that cannot be broken down into simp
